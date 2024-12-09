@@ -187,7 +187,7 @@ const quizData = [
         "C. Akan menggantikan sepenuhnya konten yang dibuat manusia",
         "D. Akan menjadi alat bantu bagi manusia dalam menciptakan konten"
       ],
-      answer: "D. Akan menjadi alat bantu bagi manusia dalam menciptakan konteni"
+      answer: "D. Akan menjadi alat bantu bagi manusia dalam menciptakan konten"
     },
     {
       question: "Alat apa yang paling umum digunakan untuk mengelola iklan di berbagai platform media sosial?",

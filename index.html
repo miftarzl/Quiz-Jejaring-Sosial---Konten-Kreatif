@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Jejaring Sosial & Konten Kreatif</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        #timer {
+            font-size: 20px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .quiz-question {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .form-check {
+            margin-left: 20px;
+        }
+
+        .quiz-container {
+            margin-top: 20px;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="text-center" style="background-color: #007bff; color: white; padding: 20px; border-radius: 10px;">Kuis Jejaring Sosial & Konten Kreatif</h1>
+
+        <button id="start-quiz-btn" class="btn btn-primary mt-4" onclick="startQuiz()">Mulai Kuis</button>
+
+        <div id="form-container" class="text-center my-4" style="display:none;">
+            <h2>Silakan Isi Nama Anda</h2>
+            <iframe id="microsoft-form" src="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAO__VPS5f1UNzJYVVdMSzBWU1M3WVZTMlVVOUlETTdJSS4u&embed=true" 
+                    width="640" height="480" frameborder="0" marginwidth="0" marginheight="0" 
+                    style="border: none; max-width:100%; max-height:100vh; overflow:hidden;" allowfullscreen webkitallowfullscreen mozallowfullscreen msallowfullscreen>
+            </iframe>
+        </div>
+
+        <button id="continue-quiz-btn" class="btn btn-success mt-4" style="display:none;" onclick="proceedToQuiz()">Lanjutkan ke Kuis</button>
+
+        <div id="timer" class="text-center" style="display:none;">
+            <span id="time-left">60:00</span>
+        </div>
+
+        <div id="quiz-container" style="display:none;" class="quiz-container">
+            <!-- Soal kuis akan dimuat di sini -->
+        </div>
+
+        <div class="text-center">
+            <button type="button" class="btn btn-primary" id="submit-btn" style="display:none;">Submit</button>
+        </div>
+
+        <div id="result" class="text-center mt-4" style="display:none;">
+            <p><strong>Skor Anda: <span id="score"></span> / <span id="total-questions"></span></strong></p>
+        </div>
+    </div>
+
+    <script src="quiz_data.js"></script>
+    <script>
+        function startQuiz() {
+            document.getElementById("start-quiz-btn").style.display = "none";
+            document.getElementById("form-container").style.display = "block";
+            showProceedButton();
+        }
+
+        function showProceedButton() {
+            setTimeout(function() {
+                document.getElementById("continue-quiz-btn").style.display = "block";
+            }, 10000);
+        }
+
+        function proceedToQuiz() {
+            document.getElementById("form-container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            document.getElementById("submit-btn").style.display = "inline-block";
+            document.getElementById("timer").style.display = "block";
+            startTimer();
+            document.getElementById("continue-quiz-btn").style.display = "none";
+            loadQuizQuestions();
+        }
+
+        let timeLeft = 60 * 60;
+        function startTimer() {
+            const timerElement = document.getElementById("time-left");
+            const interval = setInterval(function() {
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    alert("Waktu habis! Kuis selesai.");
+                    document.getElementById("submit-btn").click();
+                } else {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        function loadQuizQuestions() {
+            shuffleArray(quizData);
+
+            const quizContainer = document.getElementById("quiz-container");
+            quizData.forEach((question, index) => {
+                const questionContainer = document.createElement("div");
+                questionContainer.classList.add("mb-3");
+                questionContainer.id = `question-container-${index}`;
+
+                const questionLabel = document.createElement("label");
+                questionLabel.classList.add("quiz-question");
+                questionLabel.innerHTML = `<strong>${index + 1}.</strong> ${question.question}`;
+                questionContainer.appendChild(questionLabel);
+
+                shuffleArray(question.options);
+
+                question.options.forEach((option, i) => {
+                    const optionContainer = document.createElement("div");
+                    optionContainer.classList.add("form-check");
+
+                    const input = document.createElement("input");
+                    input.classList.add("form-check-input");
+                    input.type = "radio";
+                    input.name = `answer_${index}`;
+                    input.id = `question_${index}_option_${i}`;
+                    input.value = option;
+
+                    const label = document.createElement("label");
+                    label.classList.add("form-check-label");
+                    label.setAttribute("for", `question_${index}_option_${i}`);
+                    label.innerHTML = option;
+
+                    optionContainer.appendChild(input);
+                    optionContainer.appendChild(label);
+                    questionContainer.appendChild(optionContainer);
+                });
+
+                quizContainer.appendChild(questionContainer);
+            });
+        }
+
+        const submitButton = document.getElementById("submit-btn");
+        submitButton.addEventListener("click", () => {
+            let score = 0;
+
+            quizData.forEach((question, index) => {
+                const selectedAnswer = document.querySelector(`input[name="answer_${index}"]:checked`);
+                const feedbackContainer = document.createElement("div");
+                feedbackContainer.classList.add("feedback");
+
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === question.answer) {
+                        score++;
+                        feedbackContainer.classList.add("correct");
+                        feedbackContainer.textContent = `Jawaban Anda benar: ${selectedAnswer.value}`;
+                    } else {
+                        feedbackContainer.classList.add("incorrect");
+                        feedbackContainer.textContent = `Jawaban Anda salah. Jawaban yang benar: ${question.answer}`;
+                    }
+                } else {
+                    feedbackContainer.classList.add("incorrect");
+                    feedbackContainer.textContent = `Anda tidak menjawab pertanyaan ini. Jawaban yang benar adalah: ${question.answer}`;
+                }
+
+                const questionContainer = document.getElementById(`question-container-${index}`);
+                questionContainer.appendChild(feedbackContainer);
+            });
+
+            document.getElementById("result").style.display = "block";
+            document.getElementById("score").textContent = score;
+            document.getElementById("total-questions").textContent = quizData.length;
+
+            submitButton.style.display = "none";
+            document.getElementById("timer").style.display = "none";
+        });
+
+    </script>
+</body>
+</html>
